@@ -97,7 +97,7 @@ export default Ember.Component.extend({
     const viewportLength = this._viewportLength;
     const contentLength = this._contentLength;
     const trackLength = this.getTrackLength(track);
-    const contentRatio = viewportLength / contentLength;
+    const contentRatio = min(1, viewportLength / contentLength);
     let scrollbarLength = max(round(contentRatio * trackLength), MIN_SCROLLBAR_LENGTH);
     const uncompressedMaxScrollbarPosition = trackLength - scrollbarLength;
     const compressedMaxScrollbarPosition = trackLength - MIN_SCROLLBAR_LENGTH;
