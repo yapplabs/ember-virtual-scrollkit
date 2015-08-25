@@ -1,6 +1,6 @@
 /* global Scroller */
 import Ember from 'ember';
-import applyTransform from 'ember-collection/utils/apply-transform';
+import { translate } from 'ember-collection/utils/translate';
 
 var fieldRegex = /input|textarea|select/i,
   hasTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch,
@@ -214,7 +214,7 @@ export default Ember.Component.extend({
     }
   },
   syncScrollFromAttr() {
-    applyTransform(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
+    translate(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
   },
   sendScrollChange(scrollLeft, scrollTop) {
     this.sendAction('scrollChange', { scrollLeft, scrollTop });
