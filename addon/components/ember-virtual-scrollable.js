@@ -204,13 +204,9 @@ export default Ember.Component.extend({
     let element = this.element;
     let clientWidth = element.offsetWidth;
     let clientHeight = element.offsetHeight;
-    let clientSizeChanged = false;
     if (clientWidth !== this._clientwidth || clientHeight !== this._clientHeight) {
-      clientSizeChanged = true;
-      // console.debug('clientSizeChanged', clientWidth, clientHeight);
-    }
-
-    if (clientSizeChanged) {
+      this._clientwidth = clientWidth;
+      this._clientHeight = clientHeight;
       Ember.run(() => {
         this.updateScrollerDimensions(clientWidth, clientHeight);
         this.sendClientSizeChange(clientWidth, clientHeight);
