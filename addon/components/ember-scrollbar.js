@@ -1,52 +1,8 @@
 import Ember from 'ember';
 import layout from './ember-scrollbar/template';
+import { translate } from 'ember-collection/utils/translate';
 const { min, max, round } = Math;
 const MIN_SCROLLBAR_LENGTH = 15;
-
-const csstransforms3d = true;
-const csstransforms = true;
-// const csstransforms3d = Modernizr.csstransforms3d;
-// const csstransforms = Modernizr.csstransforms;
-
-const transformProperty = 'transform';
-// const transformProperty = Modernizr.prefixed("Transform");
-let translateY;
-let translateX;
-let trnOpen;
-let trnClose;
-
-if (csstransforms3d) {
-  trnOpen = 'translate3d(';
-  trnClose = ', 0)';
-  translateY = function(element, yPos) {
-    if (!element) { return; }
-    element.style[transformProperty] = `${trnOpen}0, ${-yPos}px${trnClose}`;
-  };
-  translateX = function(element, xPos) {
-    if (!element) { return; }
-    element.style[transformProperty] = `${trnOpen}${xPos}px, 0${trnClose}`;
-  };
-} else if (csstransforms) {
-  trnOpen = 'translate(';
-  trnClose = ')';
-  translateY = function(element, yPos) {
-    if (!element) { return; }
-    element.style[transformProperty] = `${trnOpen}0, ${-yPos}px${trnClose}`;
-  };
-  translateX = function(element, xPos) {
-    if (!element) { return; }
-    element.style[transformProperty] = `${trnOpen}${xPos}px, 0${trnClose}`;
-  };
-} else {
-  translateY = function(element, yPos) {
-    if (!element) { return; }
-    element.style.marginTop = `${-yPos}px`;
-  };
-  translateX = function(element, xPos) {
-    if (!element) { return; }
-    element.style.marginLeft = `${-xPos}px`;
-  };
-}
 
 export default Ember.Component.extend({
   layout: layout,
@@ -68,6 +24,7 @@ export default Ember.Component.extend({
       this._contentLength = this.getAttr('content-width');
       this._viewportLength = this.getAttr('viewport-width');
     }
+    this._isScrolling = this.getAttr('is-scrolling');
   },
   getTrackLength(trackElement){
     if (this.direction === 'vertical') {
@@ -79,11 +36,12 @@ export default Ember.Component.extend({
   applyStyles(thumbElement, scrollbarPosition, scrollbarLength) {
     if (this.direction === 'vertical') {
       thumbElement.style.height = `${scrollbarLength}px`;
-      translateY(thumbElement, -scrollbarPosition);
+      translate(thumbElement, 0, scrollbarPosition);
     } else {
       thumbElement.style.width = `${scrollbarLength}px`;
-      translateX(thumbElement, -scrollbarPosition);
+      translate(thumbElement, scrollbarPosition, 0);
     }
+    thumbElement.style.opacity = this._isScrolling ? 1.0 : 0;
   },
   didRender: function(){
     this.updateScrollbar();

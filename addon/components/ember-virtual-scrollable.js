@@ -147,7 +147,7 @@ export default Ember.Component.extend({
     }, {
       scrollingX: false,
       scrollingComplete: () => {
-        this.trigger('scrollingDidComplete');
+        this.sendAction('scrollingCompleted');
       }
     });
   },
@@ -248,6 +248,7 @@ export default Ember.Component.extend({
 
       if (startingScrollTop !== endingScrollTop) {
         this._isScrolling = true;
+        this.sendAction('scrollingStarted');
       }
     }
   },
@@ -263,6 +264,7 @@ export default Ember.Component.extend({
     candidatePosition = this.scroller.__scrollTop + delta;
 
     if ((candidatePosition >= 0) && (candidatePosition <= this.scroller.__maxScrollTop)) {
+      this.sendAction('scrollingStarted');
       this.scroller.scrollBy(0, delta, true);
       e.stopPropagation();
     }
