@@ -143,7 +143,7 @@ export default Ember.Component.extend({
   },
   setupScroller: function(){
     this.scroller = new Scroller((left, top/*, zoom*/) => {
-      Ember.run(this, this.sendScrollChange, left, top);
+      Ember.run.join(this, this.sendScrollChange, left, top);
     }, {
       scrollingX: false,
       scrollingComplete: () => {
