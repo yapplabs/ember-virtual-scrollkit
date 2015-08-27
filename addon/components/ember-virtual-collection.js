@@ -7,11 +7,11 @@ export default EmberCollection.extend({
   isScrolling: false,
   actions: {
     scrollingStarted(){
-      console.debug('scrollingStarted')
+      console.debug('scrollingStarted');
       this.set('isScrolling', true);
     },
     scrollingCompleted(){
-      console.debug('scrollingCompleted')
+      console.debug('scrollingCompleted');
       this.set('isScrolling', false);
     }
   }
