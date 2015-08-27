@@ -26,13 +26,6 @@ export default Ember.Component.extend({
     }
     this._isScrolling = this.getAttr('is-scrolling');
   },
-  getTrackLength(trackElement){
-    if (this.direction === 'vertical') {
-      return trackElement.offsetHeight;
-    } else {
-      return trackElement.offsetWidth;
-    }
-  },
   applyStyles(thumbElement, scrollbarPosition, scrollbarLength) {
     if (this.direction === 'vertical') {
       thumbElement.style.height = `${scrollbarLength}px`;
@@ -54,7 +47,7 @@ export default Ember.Component.extend({
     }
     const viewportLength = this._viewportLength;
     const contentLength = this._contentLength;
-    const trackLength = this.getTrackLength(track);
+    const trackLength = viewportLength;
     const contentRatio = min(1, viewportLength / contentLength);
     let scrollbarLength = max(round(contentRatio * trackLength), MIN_SCROLLBAR_LENGTH);
     const uncompressedMaxScrollbarPosition = trackLength - scrollbarLength;
