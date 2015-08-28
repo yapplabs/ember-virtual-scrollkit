@@ -118,6 +118,8 @@ export default Ember.Component.extend({
     this._scrollLeft = 0;
     this._scrollTop = 0;
     this._animationFrame = undefined;
+    this._isScrolling = false;
+    this.scroller = undefined;
     this.scrollerEventHandlers = {
       start: handleStart.bind(this),
       move: handleMove.bind(this),
@@ -141,15 +143,31 @@ export default Ember.Component.extend({
     this.startSizeCheck();
     this.bindScrollerEvents();
   },
+  didUpdate() {
+    this.applyContentSize();
+  },
   setupScroller: function(){
     this.scroller = new Scroller((left, top/*, zoom*/) => {
-      Ember.run.join(this, this.sendScrollChange, left, top);
+      Ember.run.join(this, this.onScrollChange, left, top);
     }, {
       scrollingX: false,
       scrollingComplete: () => {
-        this.sendAction('scrollingCompleted');
+        Ember.run.join(this, this.onScrollCompleted);
       }
     });
+  },
+  onScrollChange(scrollLeft, scrollTop) {
+    if (!this._isScrolling) {
+      this._isScrolling = true;
+      this.sendAction('scrollingStarted');
+    }
+    this.sendAction('scrollChange', { scrollLeft, scrollTop });
+  },
+  onScrollCompleted() {
+    if (this._isScrolling) {
+      this._isScrolling = false;
+      this.sendAction('scrollingCompleted');
+    }
   },
   updateScrollerDimensions(clientWidth, clientHeight) {
     this.scroller.setDimensions(clientWidth, clientHeight, this._contentSize.width, this._contentSize.height);
@@ -164,11 +182,7 @@ export default Ember.Component.extend({
   },
   applyStyle() {
     // hack to force render buffer so outside doesn't repaint on scroll
-    this.element.style.webkitTransform = 'translate3d(0px, 0px, 0px) scale(1)';
-    this.element.style.mozTransform = 'translate3d(0px, 0px, 0px) scale(1)';
-    this.element.style.msTransform = 'translate3d(0px, 0px, 0px) scale(1)';
-    this.element.style.oTransform = 'translate3d(0px, 0px, 0px) scale(1)';
-    this.element.style.transform = 'translate3d(0px, 0px, 0px) scale(1)';
+    translate(this.element, 0, 0);
 
     this.element.style.overflow = 'hidden';
     this.element.style.position = 'absolute';
@@ -216,9 +230,6 @@ export default Ember.Component.extend({
   syncScrollFromAttr() {
     translate(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
   },
-  sendScrollChange(scrollLeft, scrollTop) {
-    this.sendAction('scrollChange', { scrollLeft, scrollTop });
-  },
   sendClientSizeChange(width, height) {
     this.sendAction('clientSizeChange', { width, height });
   },
@@ -230,27 +241,11 @@ export default Ember.Component.extend({
     unbindWindow(this.scrollerEventHandlers);
   },
   willBeginScroll: function(touches, timeStamp) {
-    this._isScrolling = false;
     this.scroller.doTouchStart(touches, timeStamp);
   },
 
   continueScroll: function(touches, timeStamp) {
-    var startingScrollTop, endingScrollTop;
-
-    if (this._isScrolling) {
-      this.scroller.doTouchMove(touches, timeStamp);
-    } else {
-      startingScrollTop = this._scrollTop;
-
-      this.scroller.doTouchMove(touches, timeStamp);
-
-      endingScrollTop = this._scrollTop;
-
-      if (startingScrollTop !== endingScrollTop) {
-        this._isScrolling = true;
-        this.sendAction('scrollingStarted');
-      }
-    }
+    this.scroller.doTouchMove(touches, timeStamp);
   },
 
   endScroll: function(timeStamp) {
@@ -264,7 +259,6 @@ export default Ember.Component.extend({
     candidatePosition = this.scroller.__scrollTop + delta;
 
     if ((candidatePosition >= 0) && (candidatePosition <= this.scroller.__maxScrollTop)) {
-      this.sendAction('scrollingStarted');
       this.scroller.scrollBy(0, delta, true);
       e.stopPropagation();
     }
