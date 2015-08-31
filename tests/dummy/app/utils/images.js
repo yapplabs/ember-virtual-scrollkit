@@ -40,4 +40,46 @@ var strangeRatios = [
   'images/strange-ratios/vertical-rectangle.jpg'
 ];
 
-export default { images, smallImages, strangeRatios };
+var remoteImages = [
+  'http://lorempixel.com/50/50/sports/1/',
+  'http://lorempixel.com/50/50/sports/2/',
+  'http://lorempixel.com/50/50/sports/3/',
+  'http://lorempixel.com/50/50/sports/4/',
+  'http://lorempixel.com/50/50/sports/5/',
+  'http://lorempixel.com/50/50/sports/6/',
+  'http://lorempixel.com/50/50/sports/7/',
+  'http://lorempixel.com/50/50/sports/8/',
+  'http://lorempixel.com/50/50/sports/9/',
+  'http://lorempixel.com/50/50/sports/10/',
+  'http://lorempixel.com/50/50/animals/1/',
+  'http://lorempixel.com/50/50/animals/2/',
+  'http://lorempixel.com/50/50/animals/3/',
+  'http://lorempixel.com/50/50/animals/4/',
+  'http://lorempixel.com/50/50/animals/5/',
+  'http://lorempixel.com/50/50/animals/6/',
+  'http://lorempixel.com/50/50/animals/7/',
+  'http://lorempixel.com/50/50/animals/8/',
+  'http://lorempixel.com/50/50/animals/9/',
+  'http://lorempixel.com/50/50/animals/10/',
+  'http://lorempixel.com/50/50/abstract/1/',
+  'http://lorempixel.com/50/50/abstract/2/',
+  'http://lorempixel.com/50/50/abstract/3/',
+  'http://lorempixel.com/50/50/abstract/4/',
+  'http://lorempixel.com/50/50/abstract/5/',
+  'http://lorempixel.com/50/50/abstract/6/',
+  'http://lorempixel.com/50/50/abstract/7/',
+  'http://lorempixel.com/50/50/abstract/8/',
+  'http://lorempixel.com/50/50/abstract/9/',
+  'http://lorempixel.com/50/50/abstract/10/',
+  'http://lorempixel.com/50/50/nightlife/1/',
+  'http://lorempixel.com/50/50/nightlife/2/',
+  'http://lorempixel.com/50/50/nightlife/3/',
+  'http://lorempixel.com/50/50/nightlife/4/',
+  'http://lorempixel.com/50/50/nightlife/5/',
+  'http://lorempixel.com/50/50/nightlife/6/',
+  'http://lorempixel.com/50/50/nightlife/7/',
+  'http://lorempixel.com/50/50/nightlife/8/',
+  'http://lorempixel.com/50/50/nightlife/9/'
+]
+
+export default { images, smallImages, strangeRatios, remoteImages };
