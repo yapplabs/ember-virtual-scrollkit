@@ -1,5 +1,7 @@
 import Ember from 'ember';
-export default function dynamicImage([imageSrc, width, height]) {
+export default function dynamicImage([imageSrc], hash) {
+  const { width, height } = hash;
+  const className = hash.class;
   if (typeof Image === 'undefined') {
     let html = `<img src='${imageSrc}'`;
     if (width) {
@@ -7,6 +9,9 @@ export default function dynamicImage([imageSrc, width, height]) {
     }
     if (height) {
       html += ` height=${height}`;
+    }
+    if (className) {
+      html += ` class=${className}`;
     }
     html += '>';
     return Ember.String.htmlSafe(html);
@@ -17,6 +22,9 @@ export default function dynamicImage([imageSrc, width, height]) {
     }
     if (height) {
       img.height = height;
+    }
+    if (className) {
+      img.setAttribute('class', className);
     }
     img.src = imageSrc;
     return img;
