@@ -1,11 +1,23 @@
 import Ember from 'ember';
 export default function dynamicImage([imageSrc, width, height]) {
   if (typeof Image === 'undefined') {
-    return Ember.String.htmlSafe(`<img src='${imageSrc}' width=${width} height=${height}>`);
+    let html = `<img src='${imageSrc}'`;
+    if (width) {
+      html += ` width=${width}`;
+    }
+    if (height) {
+      html += ` height=${height}`;
+    }
+    html += '>';
+    return Ember.String.htmlSafe(html);
   } else {
     var img = new Image();
-    img.width = width;
-    img.height = height;
+    if (width) {
+      img.width = width;
+    }
+    if (height) {
+      img.height = height;
+    }
     img.src = imageSrc;
     return img;
   }
