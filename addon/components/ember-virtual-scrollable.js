@@ -115,6 +115,8 @@ export default Ember.Component.extend({
   init() {
     this._clientWidth = undefined;
     this._clientHeight = undefined;
+    this._contentSize = undefined;
+    this._appliedContentSize = undefined;
     this._scrollLeft = 0;
     this._scrollTop = 0;
     this._animationFrame = undefined;
@@ -191,11 +193,18 @@ export default Ember.Component.extend({
     this.element.style.bottom = 0;
     this.element.style.right = 0;
     this.element.style.boxSizing = 'border-box';
+
+    this.contentElement.style.position = 'relative';
   },
   applyContentSize() {
-    this.contentElement.style.position = 'relative';
-    this.contentElement.style.width = this._contentSize.width + 'px';
-    this.contentElement.style.height = this._contentSize.height + 'px';
+    if (this._appliedContentSize &&
+        this._appliedContentSize.width !== this._contentSize.width &&
+        this._appliedContentSize.height !== this._contentSize.height
+      ) {
+      this.contentElement.style.width = this._contentSize.width + 'px';
+      this.contentElement.style.height = this._contentSize.height + 'px';
+      this._appliedContentSize = this._contentSize;
+    }
   },
   startSizeCheck() {
     const component = this;
