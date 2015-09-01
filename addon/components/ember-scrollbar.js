@@ -13,6 +13,8 @@ export default Ember.Component.extend({
   sideInset: 2,
   endInset: 2,
   _appliedScrollOffset: undefined,
+  _appliedViewportLength: undefined,
+  _appliedContentLength: undefined,
   didReceiveAttrs: function(){
     this._super(...arguments);
     this.readAttributes();
@@ -63,10 +65,14 @@ export default Ember.Component.extend({
     this.updateScrollbar();
   },
   updateScrollbar: function() {
-    if (this._appliedScrollOffset === this._scrollOffset) {
+    if (this._appliedScrollOffset === this._scrollOffset
+        && this._appliedViewportLength === this._viewportLength
+        && this._appliedContentLength === this._contentLength) {
       return;
     }
     this._appliedScrollOffset = this._scrollOffset;
+    this._appliedViewportLength = this._viewportLength;
+    this._appliedContentLength = this._contentLength;
     const track = this.$('.track')[0];
     const thumb = this.$('.thumb')[0];
     if (!track || !thumb) {
