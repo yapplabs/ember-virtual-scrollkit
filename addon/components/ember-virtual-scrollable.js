@@ -119,6 +119,8 @@ export default Ember.Component.extend({
     this._appliedContentSize = undefined;
     this._scrollLeft = 0;
     this._scrollTop = 0;
+    this._appliedScrollLeft = undefined;
+    this._appliedScrollTop = undefined;
     this._animationFrame = undefined;
     this._isScrolling = false;
     this.scroller = undefined;
@@ -237,7 +239,11 @@ export default Ember.Component.extend({
     }
   },
   syncScrollFromAttr() {
-    translate(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
+    if (this._appliedScrollLeft !== this._scrollLeft || this._appliedScrollTop !== this._scrollTop) {
+      this._appliedScrollLeft = this._scrollLeft;
+      this._appliedScrollTop = this._scrollTop;
+      translate(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
+    }
   },
   sendClientSizeChange(width, height) {
     this.sendAction('clientSizeChange', { width, height });

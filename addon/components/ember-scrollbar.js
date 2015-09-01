@@ -9,6 +9,7 @@ export default Ember.Component.extend({
   classNames: ['ember-scrollbar'],
   classNameBindings: ['direction'],
   direction: 'vertical',
+  _appliedScrollOffset: undefined,
   didReceiveAttrs: function(){
     this._super(...arguments);
     this.readAttributes();
@@ -40,6 +41,10 @@ export default Ember.Component.extend({
     this.updateScrollbar();
   },
   updateScrollbar: function() {
+    if (this._appliedScrollOffset === this._scrollOffset) {
+      return;
+    }
+    this._appliedScrollOffset = this._scrollOffset;
     const track = this.$('.track')[0];
     const thumb = this.$('.thumb')[0];
     if (!track || !thumb) {
