@@ -5,22 +5,6 @@
   border: 1px solid black;
 }
 
-.ember-scrollbar.vertical .track {
-  position: absolute;
-  width: 5px;
-  bottom: 2px;
-  top: 2px;
-  right: 2px;
-}
-
-.ember-scrollbar.horizontal .track {
-  position: absolute;
-  height: 5px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-}
-
 .ember-scrollbar .thumb {
   border-radius: 4px;
   background-color:black;
