@@ -16,12 +16,12 @@ if (hasTouch) {
       return;
     }
     bindWindow(this.scrollerEventHandlers);
-    this.willBeginScroll(e.touches, e.timeStamp);
+    this.doTouchStart(e.touches, e.timeStamp);
     e.preventDefault();
   };
   moveEvent = 'touchmove';
   handleMove = function (e) {
-    this.continueScroll(e.touches, e.timeStamp);
+    this.doTouchMove(e.touches, e.timeStamp);
   };
   endEvent = 'touchend';
   handleEnd = function (e) {
@@ -32,12 +32,12 @@ if (hasTouch) {
       synthesizeClick(e);
     }
     unbindWindow(this.scrollerEventHandlers);
-    this.endScroll(e.timeStamp);
+    this.doTouchEnd(e.timeStamp);
   };
   cancelEvent = 'touchcancel';
   handleCancel = function (e) {
     unbindWindow(this.scrollerEventHandlers);
-    this.endScroll(e.timeStamp);
+    this.doTouchEnd(e.timeStamp);
   };
 } else {
   startEvent = 'mousedown';
@@ -51,17 +51,17 @@ if (hasTouch) {
       return;
     }
     bindWindow(this.scrollerEventHandlers);
-    this.willBeginScroll([e], e.timeStamp);
+    this.doTouchStart([e], e.timeStamp);
     e.preventDefault();
   };
   moveEvent = 'mousemove';
   handleMove = function (e) {
-    this.continueScroll([e], e.timeStamp);
+    this.doTouchMove([e], e.timeStamp);
   };
   endEvent = 'mouseup';
   handleEnd = function (e) {
     unbindWindow(this.scrollerEventHandlers);
-    this.endScroll(e.timeStamp);
+    this.doTouchEnd(e.timeStamp);
   };
   cancelEvent = 'mouseout';
   handleCancel = function (e) {
@@ -69,7 +69,7 @@ if (hasTouch) {
       return;
     }
     unbindWindow(this.scrollerEventHandlers);
-    this.endScroll(e.timeStamp);
+    this.doTouchEnd(e.timeStamp);
   };
 }
 
@@ -123,6 +123,7 @@ export default Ember.Component.extend({
     this._appliedScrollTop = undefined;
     this._animationFrame = undefined;
     this._isScrolling = false;
+    this._isTouching = false;
     this.scroller = undefined;
     this.scrollerEventHandlers = {
       start: handleStart.bind(this),
@@ -152,26 +153,13 @@ export default Ember.Component.extend({
   },
   setupScroller: function(){
     this.scroller = new Scroller((left, top/*, zoom*/) => {
-      Ember.run.join(this, this.onScrollChange, left, top);
+      Ember.run.join(this, this.onScrollChange, left|0, top|0);
     }, {
-      scrollingX: false,
-      scrollingComplete: () => {
-        Ember.run.join(this, this.onScrollCompleted);
-      }
+      scrollingX: false
     });
   },
   onScrollChange(scrollLeft, scrollTop) {
-    if (!this._isScrolling) {
-      this._isScrolling = true;
-      this.sendAction('scrollingStarted');
-    }
     this.sendAction('scrollChange', { scrollLeft, scrollTop });
-  },
-  onScrollCompleted() {
-    if (this._isScrolling) {
-      this._isScrolling = false;
-      this.sendAction('scrollingCompleted');
-    }
   },
   updateScrollerDimensions(clientWidth, clientHeight) {
     this.scroller.setDimensions(clientWidth, clientHeight, this._contentSize.width, this._contentSize.height);
@@ -255,17 +243,21 @@ export default Ember.Component.extend({
     unbindElement(this.element, this.scrollerEventHandlers);
     unbindWindow(this.scrollerEventHandlers);
   },
-  willBeginScroll: function(touches, timeStamp) {
-    this.scroller.doTouchStart(touches, timeStamp);
-  },
 
-  continueScroll: function(touches, timeStamp) {
+  doTouchStart: function(touches, timeStamp) {
+    this._isTouching = true;
+    this.scroller.doTouchStart(touches, timeStamp);
+    this.sendAction('touchingChange', this._isTouching);
+  },
+  doTouchMove: function(touches, timeStamp) {
     this.scroller.doTouchMove(touches, timeStamp);
   },
-
-  endScroll: function(timeStamp) {
+  doTouchEnd: function(timeStamp) {
+    this._isTouching = false;
     this.scroller.doTouchEnd(timeStamp);
+    this.sendAction('touchingChange', this._isTouching);
   },
+
   mouseWheel: function(e){
     var inverted, delta, candidatePosition;
 

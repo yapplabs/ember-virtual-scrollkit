@@ -30,12 +30,20 @@ export default Ember.Component.extend({
       this._contentLength = this.getAttr('content-width');
       this._viewportLength = this.getAttr('viewport-width');
     }
-    this._isScrolling = this.getAttr('is-scrolling');
+    this._isTouching = this.getAttr('is-touching');
   },
   didInsertElement(){
     this._super(...arguments);
     this.applyTrackStyles();
+    this.thumbElement = this.$('.thumb')[0];
   },
+  didRender: function(){
+    this.checkIsMoving();
+    this.checkIsTouching();
+    this.updateScrollbar();
+    this.scheduleCheckIsMoving();
+  },
+
   applyTrackStyles(){
     const track = this.$('.track')[0];
     track.style.position = 'absolute';
@@ -51,33 +59,76 @@ export default Ember.Component.extend({
       track.style.bottom = `${this.get('sideInset')}px`;
     }
   },
-  applyStyles(thumbElement, scrollbarPosition, scrollbarLength) {
+  applyStyles(scrollbarPosition, scrollbarLength) {
     if (this.direction === 'vertical') {
-      thumbElement.style.height = `${scrollbarLength}px`;
-      translate(thumbElement, 0, scrollbarPosition);
+      this.thumbElement.style.height = `${scrollbarLength}px`;
+      translate(this.thumbElement, 0, scrollbarPosition);
     } else {
-      thumbElement.style.width = `${scrollbarLength}px`;
-      translate(thumbElement, scrollbarPosition, 0);
+      this.thumbElement.style.width = `${scrollbarLength}px`;
+      translate(this.thumbElement, scrollbarPosition, 0);
     }
-    thumbElement.style.opacity = this._isScrolling ? 1.0 : 0;
   },
-  didRender: function(){
-    this.updateScrollbar();
+  applyVisibility(){
+    this.thumbElement.style.opacity = this._isThumbVisible ? 1.0 : 0;
+  },
+
+  checkIsTouching(){
+    if (this._appliedIsTouching === this._isTouching) {
+      return;
+    }
+    this._appliedIsTouching = this._isTouching;
+    this.computeVisibility();
+  },
+  checkIsMoving(){
+    if (this._checkIsMovingTimer) {
+      Ember.run.cancel(this._checkIsMovingTimer);
+      this._checkIsMovingTimer = null;
+    }
+    var timeDelta = new Date() - this._previousScrollOffsetTimestamp;
+    if (this._scrollOffset === this._previousScrollOffset) {
+      if (timeDelta > 100) { // if timeDelta <= 100ms, don't set isMoving to false. Instead, wait for the timer to call this again.
+        this._isMoving = false;
+      }
+    } else {
+      this._isMoving = true;
+    }
+    this._previousScrollOffsetTimestamp = new Date();
+    this._previousScrollOffset = this._scrollOffset;
+    if (this._appliedIsMoving !== this._isMoving) {
+      this._appliedIsMoving = this._isMoving;
+      this.computeVisibility();
+    }
+  },
+  scheduleCheckIsMoving(){
+    if (!this._checkIsMovingTimer) {
+      this._checkIsMovingTimer = Ember.run.later(this, this.checkIsMoving, 250);
+    }
+  },
+  computeVisibility(){
+    if (this._isThumbVisible) {
+      // visible, keep showing if user is touching or view is still moving
+      this._isThumbVisible = this._isTouching || this._isMoving;
+    } else {
+      // not yet visible, show it if user is touching and has panned
+      this._isThumbVisible = this._isTouching && this._isMoving;
+    }
+    if (this._appliedIsThumbVisible !== this._isThumbVisible) {
+      this._appliedIsThumbVisible = this._isThumbVisible;
+      this.applyVisibility();
+    }
   },
   updateScrollbar: function() {
-    if (this._appliedScrollOffset === this._scrollOffset
-        && this._appliedViewportLength === this._viewportLength
-        && this._appliedContentLength === this._contentLength) {
+    if (this._appliedScrollOffset === this._scrollOffset &&
+        this._appliedViewportLength === this._viewportLength &&
+        this._appliedContentLength === this._contentLength) {
       return;
     }
+    this._scrollDifferential = this._scrollOffset - this._appliedScrollOffset;
     this._appliedScrollOffset = this._scrollOffset;
+    this._appliedIsThumbVisible = this._isThumbVisible;
     this._appliedViewportLength = this._viewportLength;
     this._appliedContentLength = this._contentLength;
-    const track = this.$('.track')[0];
-    const thumb = this.$('.thumb')[0];
-    if (!track || !thumb) {
-      return;
-    }
+
     const viewportLength = this._viewportLength;
     const contentLength = this._contentLength;
     const trackLength = viewportLength - (this.get('endInset') * 2);
@@ -95,6 +146,6 @@ export default Ember.Component.extend({
       scrollbarPosition = min(compressedMaxScrollbarPosition, uncompressedMaxScrollbarPosition + compressionAmount);
     }
     scrollbarPosition = max(scrollbarPosition, 0);
-    this.applyStyles(thumb, scrollbarPosition, scrollbarLength);
+    this.applyStyles(scrollbarPosition, scrollbarLength);
   }
 });
