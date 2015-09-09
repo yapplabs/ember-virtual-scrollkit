@@ -25,12 +25,6 @@ if (hasTouch) {
   };
   endEvent = 'touchend';
   handleEnd = function (e) {
-    // if we didn't end up scrolling we need to
-    // synthesize click since we did e.preventDefault()
-    // on touchstart
-    if (!this._isScrolling) {
-      synthesizeClick(e);
-    }
     unbindWindow(this.scrollerEventHandlers);
     this.doTouchEnd(e.timeStamp);
   };
@@ -73,17 +67,6 @@ if (hasTouch) {
   };
 }
 
-function synthesizeClick(e) {
-  var point = e.changedTouches[0],
-    target = point.target,
-    ev;
-  if (target && !fieldRegex.test(target.tagName)) {
-    ev = document.createEvent('MouseEvents');
-    ev.initMouseEvent('click', true, true, e.view, 1, point.screenX, point.screenY, point.clientX, point.clientY, e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, 0, null);
-    return target.dispatchEvent(ev);
-  }
-}
-
 function handleWheel(e) {
   this.mouseWheel(e);
   e.preventDefault();
@@ -122,7 +105,6 @@ export default Ember.Component.extend({
     this._appliedScrollLeft = undefined;
     this._appliedScrollTop = undefined;
     this._animationFrame = undefined;
-    this._isScrolling = false;
     this._isTouching = false;
     this.scroller = undefined;
     this.scrollerEventHandlers = {
