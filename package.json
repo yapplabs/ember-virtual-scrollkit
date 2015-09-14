@@ -1,7 +1,7 @@
 {
   "name": "ember-virtual-scrollkit",
   "version": "1.0.0-alpha.1",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "A library for using ember-collection with JS/CSS-based scrolling",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,7 +11,7 @@
     "build": "ember build",
     "test": "ember try:testall"
   },
-  "repository": "",
+  "repository": "https://github.com/yapplabs/ember-virtual-scrollkit",
   "engines": {
     "node": ">= 0.10.0"
   },
