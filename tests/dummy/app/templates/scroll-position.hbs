@@ -1,0 +1,34 @@
+<h3>Scroll Position Virtual</h3>
+<button {{action 'makeSquare'}}>Square</button>
+<button {{action 'makeRow'}}>Row</button>
+<button {{action 'makeLongRect'}}>Long Rectangle</button>
+<button {{action 'makeTallRect'}}>Tall Rectable</button>
+<p>
+  Container Width: <input type='range' min=200 max=1000 value={{containerWidth}} oninput={{action 'updateContainerWidth' value='target.value'}}> {{containerWidth}}
+  Container Height: <input type='range' min=200 max=1000 value={{containerHeight}} oninput={{action 'updateContainerHeight' value='target.value'}}> {{containerHeight}}
+</p>
+<p>
+Item Height: {{itemHeight}}
+Item Width: {{itemWidth}}
+</p>
+<p>
+Scroll Left: {{input value=scrollLeft}}
+Scroll Top: {{input value=scrollTop}}
+</p>
+<hr />
+
+<div class="simple-list" style={{{concat 'position:relative;width:' containerWidth 'px;height:' containerHeight 'px;'}}}>
+  {{#ember-virtual-collection
+    items=model
+    estimated-height=containerHeight
+    estimated-width=containerWidth
+    buffer=1
+    scroll-left=scrollLeft
+    scroll-top=scrollTop
+    scroll-change=(action "scrollChange")
+    cell-layout=(fixed-grid-layout itemWidth itemHeight) as |item index|}}
+    <div class="list-item">
+      {{item.name}}
+    </div>
+  {{/ember-virtual-collection}}
+</div>

@@ -145,7 +145,19 @@ export default Ember.Component.extend({
     });
   },
   onScrollChange(scrollLeft, scrollTop) {
-    this.sendAction('scrollChange', { scrollLeft, scrollTop });
+    if (this._appliedScrollTop !== scrollTop || this._appliedScrollLeft !== scrollLeft) {
+      this._appliedScrollLeft = scrollLeft;
+      this._appliedScrollTop = scrollTop;
+      translate(this.contentElement, scrollLeft, -1 * scrollTop);
+      if (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop) {
+        this.sendAction('scrollChange', { scrollLeft, scrollTop });
+      }
+    }
+  },
+  syncScrollFromAttr() {
+    if (this._appliedScrollLeft !== this._scrollLeft || this._appliedScrollTop !== this._scrollTop) {
+      this.scroller.scrollTo(this._scrollLeft, this._scrollTop);
+    }
   },
   updateScrollerDimensions() {
     if (this._clientWidth && this._clientHeight) {
@@ -219,13 +231,6 @@ export default Ember.Component.extend({
         this.updateScrollerDimensions();
         this.sendClientSizeChange(clientWidth, clientHeight);
       });
-    }
-  },
-  syncScrollFromAttr() {
-    if (this._appliedScrollLeft !== this._scrollLeft || this._appliedScrollTop !== this._scrollTop) {
-      this._appliedScrollLeft = this._scrollLeft;
-      this._appliedScrollTop = this._scrollTop;
-      translate(this.contentElement, this._scrollLeft, -1 * this._scrollTop);
     }
   },
   sendClientSizeChange(width, height) {
