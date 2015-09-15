@@ -99,7 +99,8 @@ export default Ember.Component.extend({
     this._clientWidth = undefined;
     this._clientHeight = undefined;
     this._contentSize = undefined;
-    this._appliedContentSize = undefined;
+    this._appliedContentSize = {};
+    this._needsContentSizeUpdate = false;
     this._scrollLeft = 0;
     this._scrollTop = 0;
     this._appliedScrollLeft = undefined;
@@ -130,6 +131,9 @@ export default Ember.Component.extend({
     this.startSizeCheck();
     this.bindScrollerEvents();
   },
+  willRender() {
+    this.willRenderContentSize();
+  },
   didUpdate() {
     this.applyContentSize();
   },
@@ -143,8 +147,10 @@ export default Ember.Component.extend({
   onScrollChange(scrollLeft, scrollTop) {
     this.sendAction('scrollChange', { scrollLeft, scrollTop });
   },
-  updateScrollerDimensions(clientWidth, clientHeight) {
-    this.scroller.setDimensions(clientWidth, clientHeight, this._contentSize.width, this._contentSize.height);
+  updateScrollerDimensions() {
+    if (this._clientWidth && this._clientHeight) {
+      this.scroller.setDimensions(this._clientWidth, this._clientHeight, this._contentSize.width, this._contentSize.height);
+    }
   },
   didRender(){
     this.syncScrollFromAttr();
@@ -168,14 +174,21 @@ export default Ember.Component.extend({
 
     this.contentElement.style.position = 'relative';
   },
-  applyContentSize() {
+  willRenderContentSize(){
     if (this._appliedContentSize &&
-        this._appliedContentSize.width !== this._contentSize.width &&
-        this._appliedContentSize.height !== this._contentSize.height
+        (this._appliedContentSize.width !== this._contentSize.width ||
+        this._appliedContentSize.height !== this._contentSize.height)
       ) {
+      this._appliedContentSize = this._contentSize;
+      this._needsContentSizeUpdate = true;
+      this.updateScrollerDimensions();
+    }
+  },
+  applyContentSize() {
+    if (this._needsContentSizeUpdate) {
       this.contentElement.style.width = this._contentSize.width + 'px';
       this.contentElement.style.height = this._contentSize.height + 'px';
-      this._appliedContentSize = this._contentSize;
+      this._needsContentSizeUpdate = false;
     }
   },
   startSizeCheck() {
@@ -199,11 +212,11 @@ export default Ember.Component.extend({
     let element = this.element;
     let clientWidth = element.offsetWidth;
     let clientHeight = element.offsetHeight;
-    if (clientWidth !== this._clientwidth || clientHeight !== this._clientHeight) {
-      this._clientwidth = clientWidth;
+    if (clientWidth !== this._clientWidth || clientHeight !== this._clientHeight) {
+      this._clientWidth = clientWidth;
       this._clientHeight = clientHeight;
       Ember.run.join(() => {
-        this.updateScrollerDimensions(clientWidth, clientHeight);
+        this.updateScrollerDimensions();
         this.sendClientSizeChange(clientWidth, clientHeight);
       });
     }

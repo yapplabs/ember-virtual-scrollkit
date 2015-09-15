@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import makeModel from '../utils/make-model';
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex ;
@@ -64,6 +65,12 @@ export default Ember.Controller.extend({
         itemWidth: 50,
         itemHeight: 100
       });
+    },
+    _isFullLengthCollection: true,
+    swapCollection: function() {
+      this.toggleProperty('_isFullLengthCollection');
+      const numItems = this.get('_isFullLengthCollection') ? 1000 : 500;
+      this.set('model', makeModel(numItems)());
     }
   }
 });
