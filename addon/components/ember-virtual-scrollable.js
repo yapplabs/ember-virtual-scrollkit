@@ -17,7 +17,6 @@ if (hasTouch) {
     }
     bindWindow(this.scrollerEventHandlers);
     this.doTouchStart(e.touches, e.timeStamp);
-    e.preventDefault();
   };
   moveEvent = 'touchmove';
   handleMove = function (e) {
