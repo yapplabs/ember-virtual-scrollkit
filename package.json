@@ -1,6 +1,6 @@
 {
   "name": "ember-virtual-scrollkit",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "A library for using ember-collection with JS/CSS-based scrolling",
   "directories": {
     "doc": "doc",
@@ -18,7 +18,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "broccoli-asset-rev": "^2.0.2",
+    "broccoli-asset-rev": "^2.2.0",
     "ember-cli": "1.13.1",
     "ember-cli-app-version": "0.4.0",
     "ember-cli-dependency-checker": "^1.0.0",
