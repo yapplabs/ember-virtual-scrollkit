@@ -158,7 +158,9 @@ export default Ember.Component.extend({
     if (this._appliedScrollTop !== scrollTop || this._appliedScrollLeft !== scrollLeft) {
       this._appliedScrollLeft = scrollLeft;
       this._appliedScrollTop = scrollTop;
-      translate(this.contentElement, scrollLeft, -1 * scrollTop);
+      if (this.contentElement) {
+        translate(this.contentElement, scrollLeft, -1 * scrollTop);
+      }
       if (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop) {
         this.sendAction('scrollChange', { scrollLeft, scrollTop });
       }
@@ -184,15 +186,19 @@ export default Ember.Component.extend({
   },
   applyStyle() {
     // hack to force render buffer so outside doesn't repaint on scroll
-    translate(this.element, 0, 0);
+    let element = this.element;
+    if (!element) {
+      return;
+    }
+    translate(element, 0, 0);
 
-    this.element.style.overflow = 'hidden';
-    this.element.style.position = 'absolute';
-    this.element.style.left = 0;
-    this.element.style.top = 0;
-    this.element.style.bottom = 0;
-    this.element.style.right = 0;
-    this.element.style.boxSizing = 'border-box';
+    element.style.overflow = 'hidden';
+    element.style.position = 'absolute';
+    element.style.left = 0;
+    element.style.top = 0;
+    element.style.bottom = 0;
+    element.style.right = 0;
+    element.style.boxSizing = 'border-box';
 
     this.contentElement.style.position = 'relative';
   },
