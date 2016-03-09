@@ -161,12 +161,15 @@ export default Ember.Component.extend({
       if (this.contentElement) {
         translate(this.contentElement, scrollLeft, -1 * scrollTop);
       }
-      if (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop) {
+      if (this._initialSizeCheckCompleted && (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop)) {
         this.sendAction('scrollChange', { scrollLeft, scrollTop });
       }
     }
   },
   syncScrollFromAttr() {
+    if (!this._initialSizeCheckCompleted) {
+      return; // no sense in trying scroll until we are sized properly
+    }
     if (this._appliedScrollLeft !== this._scrollLeft || this._appliedScrollTop !== this._scrollTop) {
       this.scroller.scrollTo(this._scrollLeft, this._scrollTop);
     }
@@ -227,6 +230,18 @@ export default Ember.Component.extend({
     }
     function nextStep() {
       component._animationFrame = requestAnimationFrame(step);
+    }
+
+    // Before we check the size for the first time, we capture the intended scroll position
+    // and apply it after we determine and apply the size. The reason we need to do this
+    // is that attempting to apply the scroll position before the scroller has size results
+    // in a scroll position of [0,0].
+    let initialScrollLeft = this._scrollLeft;
+    let initialScrollTop = this._scrollTop;
+    component.sizeCheck();
+    this._initialSizeCheckCompleted = true;
+    if (initialScrollLeft || initialScrollTop) {
+      this.scroller.scrollTo(initialScrollLeft, initialScrollTop);
     }
     nextStep();
   },

@@ -80,6 +80,6 @@ var remoteImages = [
   'http://lorempixel.com/50/50/nightlife/7/',
   'http://lorempixel.com/50/50/nightlife/8/',
   'http://lorempixel.com/50/50/nightlife/9/'
-]
+];
 
 export default { images, smallImages, strangeRatios, remoteImages };
