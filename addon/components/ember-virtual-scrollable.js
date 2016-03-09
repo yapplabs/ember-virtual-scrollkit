@@ -162,7 +162,7 @@ export default Ember.Component.extend({
         translate(this.contentElement, scrollLeft, -1 * scrollTop);
       }
       if (this._initialSizeCheckCompleted && (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop)) {
-        this.sendAction('scrollChange', { scrollLeft, scrollTop });
+        this.sendAction('scrollChange', scrollLeft, scrollTop);
       }
     }
   },
@@ -265,7 +265,7 @@ export default Ember.Component.extend({
     }
   },
   sendClientSizeChange(width, height) {
-    this.sendAction('clientSizeChange', { width, height });
+    this.sendAction('clientSizeChange', width, height);
   },
   bindScrollerEvents: function() {
     bindElement(this.element, this.scrollerEventHandlers);
