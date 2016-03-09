@@ -1,25 +1,11 @@
 # Ember-virtual-scrollkit
 
-This README outlines the details of collaborating on this Ember addon.
+This addon is designed to work with [Ember Collection](https://github.com/emberjs/ember-collection). Alone, Ember Collection is insufficient for iOSUIWebview use because iOS does not send scroll events until momentum scrolling has finished.
+
+This project gives you UIWebView-capable virtual scrolling on top of Ember-Collection. It achives this via Zynga Scroller.
 
 ## Installation
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
-
-## Running
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-## Running Tests
-
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+```
+ember install ember-virtual-scrollkit
+```
