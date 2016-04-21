@@ -11,6 +11,18 @@ export default EmberCollection.extend({
     },
     scrollingComplete() {
       this.sendAction('scrolling-complete');
+    },
+    scrollChange(scrollLeft, scrollTop, params) {
+      if (this._scrollChange) {
+        this.sendAction('scroll-change', scrollLeft, scrollTop, params);
+      } else {
+        if (scrollLeft !== this._scrollLeft ||
+            scrollTop !== this._scrollTop) {
+          set(this, '_scrollLeft', scrollLeft);
+          set(this, '_scrollTop', scrollTop);
+          this._needsRevalidate();
+        }
+      }
     }
   }
 });

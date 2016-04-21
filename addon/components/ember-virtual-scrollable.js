@@ -149,7 +149,11 @@ export default Ember.Component.extend({
   },
   setupScroller: function(){
     this.scroller = new Scroller((left, top/*, zoom*/) => {
-      Ember.run.join(this, this.onScrollChange, left|0, top|0);
+      let scroller = this.scroller;
+      Ember.run.join(this, this.onScrollChange, left|0, top|0, {
+        decelerationVelocityX: scroller.__decelerationVelocityX,
+        decelerationVelocityY: scroller.__decelerationVelocityY
+      });
     }, {
       scrollingX: false,
       scrollingComplete: () => {
@@ -157,7 +161,7 @@ export default Ember.Component.extend({
       }
     });
   },
-  onScrollChange(scrollLeft, scrollTop) {
+  onScrollChange(scrollLeft, scrollTop, params) {
     if (this._appliedScrollTop !== scrollTop || this._appliedScrollLeft !== scrollLeft) {
       this._appliedScrollLeft = scrollLeft;
       this._appliedScrollTop = scrollTop;
@@ -165,7 +169,7 @@ export default Ember.Component.extend({
         translate(this.contentElement, scrollLeft, -1 * scrollTop);
       }
       if (this._initialSizeCheckCompleted && (this._scrollLeft !== scrollLeft || this._scrollTop !== scrollTop)) {
-        this.sendAction('scrollChange', scrollLeft, scrollTop);
+        this.sendAction('scrollChange', scrollLeft, scrollTop, params);
       }
     }
   },
