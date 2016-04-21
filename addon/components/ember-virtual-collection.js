@@ -8,6 +8,9 @@ export default EmberCollection.extend({
   actions: {
     touchingChange(val){
       this.set('isTouching', val);
+    },
+    scrollingComplete() {
+      this.sendAction('scrolling-complete');
     }
   }
 });
