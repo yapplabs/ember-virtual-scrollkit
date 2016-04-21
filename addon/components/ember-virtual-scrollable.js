@@ -297,11 +297,9 @@ export default Ember.Component.extend({
   },
 
   mouseWheel: function(e){
-    var inverted, delta, candidatePosition;
-
-    inverted = e.webkitDirectionInvertedFromDevice;
-    delta = e.wheelDeltaY * (inverted ? 0.8 : -0.8);
-    candidatePosition = this.scroller.__scrollTop + delta;
+    let inverted = e.webkitDirectionInvertedFromDevice;
+    let delta = e.wheelDeltaY * (inverted ? 0.8 : -0.8);
+    let candidatePosition = this.scroller.__scrollTop + delta;
 
     if ((candidatePosition >= 0) && (candidatePosition <= this.scroller.__maxScrollTop)) {
       this.scroller.scrollBy(0, delta, true);
