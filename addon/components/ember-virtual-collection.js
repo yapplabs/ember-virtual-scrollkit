@@ -1,6 +1,7 @@
 import EmberCollection from 'ember-collection/components/ember-collection';
 import layout from './ember-virtual-collection/template';
 import Ember from 'ember';
+const hasTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch;
 
 const { set } = Ember;
 
@@ -32,22 +33,41 @@ export default EmberCollection.extend({
       e.stopPropagation(); // Stop the click from being propagated.
       this.removeEventListener('click', component.captureClick, true); // cleanup
     };
-    component.ccMousedown = function() {
-      component._didScroll = false;
-    };
-    component.ccMouseup = function() {
-      if (component._didScroll || (component._isScrolling && Math.abs(component._decelerationVelocityY) > 2)) {
-        element.addEventListener('click', component.captureClick, true);
-      }
-    };
-    element.addEventListener('mousedown', component.ccMousedown, false);
-    element.addEventListener('mouseup', component.ccMouseup, false);
+    if (hasTouch) {
+      component.ccTouchend = function() {
+        if (component._isScrolling && Math.abs(component._decelerationVelocityY) > 2) {
+          element.addEventListener('click', component.captureClick, true);
+          setTimeout(function(){
+            element.removeEventListener('click', component.captureClick, true);
+          }, 0);
+        }
+      };
+      element.addEventListener('touchend', component.ccTouchend, false);
+    } else {
+      component.ccMousedown = function() {
+        component._didScroll = false;
+      };
+      component.ccMouseup = function() {
+        if (component._didScroll || (component._isScrolling && Math.abs(component._decelerationVelocityY) > 2)) {
+          element.addEventListener('click', component.captureClick, true);
+          setTimeout(function(){
+            element.removeEventListener('click', component.captureClick, true);
+          }, 0);
+        }
+      };
+      element.addEventListener('mousedown', component.ccMousedown, false);
+      element.addEventListener('mouseup', component.ccMouseup, false);
+    }
   },
   teardownClickCapture(){
     let element = this.get('element');
     element.removeEventListener('click', this.captureClick, true);
-    element.removeEventListener('mousedown', this.ccMousedown, false);
-    element.removeEventListener('mouseup', this.ccMouseup, false);
+    if (hasTouch) {
+      element.removeEventListener('touchend', this.ccTouchend, false);
+    } else {
+      element.removeEventListener('mousedown', this.ccMousedown, false);
+      element.removeEventListener('mouseup', this.ccMouseup, false);
+    }
   },
   actions: {
     touchingChange(val){
