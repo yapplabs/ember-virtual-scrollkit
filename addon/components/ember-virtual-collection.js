@@ -69,30 +69,36 @@ export default EmberCollection.extend({
       element.removeEventListener('mouseup', this.ccMouseup, false);
     }
   },
+  handleScrollChange(scrollLeft, scrollTop, params){
+    if (this._scrollChange) {
+      this.sendAction('scroll-change', scrollLeft, scrollTop, params);
+    } else {
+      if (scrollLeft !== this._scrollLeft ||
+          scrollTop !== this._scrollTop) {
+        set(this, '_scrollLeft', scrollLeft);
+        set(this, '_scrollTop', scrollTop);
+        this._needsRevalidate();
+      }
+    }
+    this._isScrolling = this._didScroll = true;
+    this._decelerationVelocityY = params.decelerationVelocityY;
+  },
+  handleScrollingComplete(){
+    this.sendAction('scrolling-complete');
+    setTimeout(()=>{
+      this._isScrolling = false;
+      this._decelerationVelocityY = 0;
+    }, 0);
+  },
   actions: {
     touchingChange(val){
       this.set('isTouching', val);
     },
     scrollingComplete() {
-      this.sendAction('scrolling-complete');
-      setTimeout(()=>{
-        this._isScrolling = false;
-        this._decelerationVelocityY = 0;
-      }, 0);
+      this.handleScrollingComplete();
     },
     scrollChange(scrollLeft, scrollTop, params) {
-      if (this._scrollChange) {
-        this.sendAction('scroll-change', scrollLeft, scrollTop, params);
-      } else {
-        if (scrollLeft !== this._scrollLeft ||
-            scrollTop !== this._scrollTop) {
-          set(this, '_scrollLeft', scrollLeft);
-          set(this, '_scrollTop', scrollTop);
-          this._needsRevalidate();
-        }
-      }
-      this._isScrolling = this._didScroll = true;
-      this._decelerationVelocityY = params.decelerationVelocityY;
+      this.handleScrollChange(scrollLeft, scrollTop, params);
     },
     clientSizeChange(clientWidth, clientHeight) {
       if (this._clientSizeChange) {
