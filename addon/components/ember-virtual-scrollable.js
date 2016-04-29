@@ -3,14 +3,6 @@ import Ember from 'ember';
 import { translate } from 'ember-collection/utils/translate';
 import normalizeWheel from 'ember-virtual-scrollkit/utils/normalize-wheel';
 
-// Certain android devices are firing a touchCancel immediately after
-// touchStart, which prevents scrolling entirely.
-let needsTouchCancelHack = false;
-const userAgent = window.navigator.userAgent;
-if (userAgent && userAgent.indexOf && userAgent.indexOf('Android 4.4') !== -1) {
-  needsTouchCancelHack = true;
-}
-
 let fieldRegex = /input|textarea|select/i;
 let handleTouchStart = function (e) {
   var touch = e.touches[0],
@@ -23,9 +15,7 @@ let handleTouchStart = function (e) {
   this.doTouchStart(e.touches, e.timeStamp);
 };
 let handleTouchMove = function (e) {
-  if (needsTouchCancelHack) {
-    e.preventDefault();
-  }
+  e.preventDefault();
   this.doTouchMove(e.touches, e.timeStamp);
 };
 let handleTouchEnd = function (e) {
