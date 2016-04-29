@@ -1,6 +1,7 @@
 /* global Scroller */
 import Ember from 'ember';
 import { translate } from 'ember-collection/utils/translate';
+import normalizeWheel from 'ember-virtual-scrollkit/utils/normalize-wheel';
 
 // Certain android devices are firing a touchCancel immediately after
 // touchStart, which prevents scrolling entirely.
@@ -10,72 +11,62 @@ if (userAgent && userAgent.indexOf && userAgent.indexOf('Android 4.4') !== -1) {
   needsTouchCancelHack = true;
 }
 
-var fieldRegex = /input|textarea|select/i,
-  hasTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch,
-  handleStart, handleMove, handleEnd, handleCancel,
-  startEvent, moveEvent, endEvent, cancelEvent;
-if (hasTouch) {
-  startEvent = 'touchstart';
-  handleStart = function (e) {
-    var touch = e.touches[0],
-      target = touch && touch.target;
-    // avoid e.preventDefault() on fields
-    if (target && fieldRegex.test(target.tagName)) {
-      return;
-    }
-    bindWindow(this.scrollerEventHandlers);
-    this.doTouchStart(e.touches, e.timeStamp);
-  };
-  moveEvent = 'touchmove';
-  handleMove = function (e) {
-    if (needsTouchCancelHack) {
-      e.preventDefault();
-    }
-    this.doTouchMove(e.touches, e.timeStamp);
-  };
-  endEvent = 'touchend';
-  handleEnd = function (e) {
-    unbindWindow(this.scrollerEventHandlers);
-    this.doTouchEnd(e.timeStamp);
-  };
-  cancelEvent = 'touchcancel';
-  handleCancel = function (e) {
-    unbindWindow(this.scrollerEventHandlers);
-    this.doTouchEnd(e.timeStamp);
-  };
-} else {
-  startEvent = 'mousedown';
-  handleStart = function (e) {
-    if (e.which !== 1) {
-      return;
-    }
-    var target = e.target;
-    // avoid e.preventDefault() on fields
-    if (target && fieldRegex.test(target.tagName)) {
-      return;
-    }
-    bindWindow(this.scrollerEventHandlers);
-    this.doTouchStart([e], e.timeStamp);
+let fieldRegex = /input|textarea|select/i;
+let handleTouchStart = function (e) {
+  var touch = e.touches[0],
+    target = touch && touch.target;
+  // avoid e.preventDefault() on fields
+  if (target && fieldRegex.test(target.tagName)) {
+    return;
+  }
+  bindWindowTouchEvents(this.scrollerEventHandlers);
+  this.doTouchStart(e.touches, e.timeStamp);
+};
+let handleTouchMove = function (e) {
+  if (needsTouchCancelHack) {
     e.preventDefault();
+  }
+  this.doTouchMove(e.touches, e.timeStamp);
+};
+let handleTouchEnd = function (e) {
+  unbindWindowTouchEvents(this.scrollerEventHandlers);
+  this.doTouchEnd(e.timeStamp);
+};
+let handleTouchCancel = function (e) {
+  unbindWindowTouchEvents(this.scrollerEventHandlers);
+  this.doTouchEnd(e.timeStamp);
+};
+
+let handleMouseDown = function (e) {
+  if (e.which !== 1) {
+    return;
+  }
+  var target = e.target;
+  // avoid e.preventDefault() on fields
+  if (target && fieldRegex.test(target.tagName)) {
+    return;
+  }
+  bindWindowMouseEvents(this.scrollerEventHandlers);
+  this.doTouchStart([e], e.timeStamp);
+  e.preventDefault();
   };
-  moveEvent = 'mousemove';
-  handleMove = function (e) {
-    this.doTouchMove([e], e.timeStamp);
-  };
-  endEvent = 'mouseup';
-  handleEnd = function (e) {
-    unbindWindow(this.scrollerEventHandlers);
-    this.doTouchEnd(e.timeStamp);
-  };
-  cancelEvent = 'mouseout';
-  handleCancel = function (e) {
-    if (e.relatedTarget) {
-      return;
-    }
-    unbindWindow(this.scrollerEventHandlers);
-    this.doTouchEnd(e.timeStamp);
-  };
-}
+
+let handleMouseMove = function (e) {
+  this.doTouchMove([e], e.timeStamp);
+};
+
+let handleMouseUp = function (e) {
+  unbindWindowMouseEvents(this.scrollerEventHandlers);
+  this.doTouchEnd(e.timeStamp);
+};
+
+let handleMouseOut = function (e) {
+  if (e.relatedTarget) {
+    return;
+  }
+  unbindWindowMouseEvents(this.scrollerEventHandlers);
+  this.doTouchEnd(e.timeStamp);
+};
 
 function handleWheel(e) {
   this.mouseWheel(e);
@@ -83,25 +74,39 @@ function handleWheel(e) {
 }
 
 function bindElement(el, handlers) {
-  el.addEventListener(startEvent, handlers.start, false);
-  el.addEventListener('mousewheel', handlers.wheel, false);
+  el.addEventListener('touchstart', handlers.touchstart, false);
+  el.addEventListener('mousedown', handlers.mousedown, false);
+  el.addEventListener(normalizeWheel.getEventType(), handlers.wheel, false);
 }
 
 function unbindElement(el, handlers) {
-  el.removeEventListener(startEvent, handlers.start, false);
-  el.removeEventListener('mousewheel', handlers.wheel, false);
+  el.removeEventListener('touchstart', handlers.touchstart, false);
+  el.removeEventListener('mousedown', handlers.mousedown, false);
+  el.removeEventListener(normalizeWheel.getEventType(), handlers.wheel, false);
 }
 
-function bindWindow(handlers) {
-  window.addEventListener(moveEvent, handlers.move, true);
-  window.addEventListener(endEvent, handlers.end, true);
-  window.addEventListener(cancelEvent, handlers.cancel, true);
+function bindWindowTouchEvents(handlers) {
+  window.addEventListener('touchmove', handlers.touchmove, true);
+  window.addEventListener('touchend', handlers.touchend, true);
+  window.addEventListener('cancelEvent', handlers.touchcancel, true);
 }
 
-function unbindWindow(handlers) {
-  window.removeEventListener(moveEvent, handlers.move, true);
-  window.removeEventListener(endEvent, handlers.end, true);
-  window.removeEventListener(cancelEvent, handlers.cancel, true);
+function bindWindowMouseEvents(handlers) {
+  window.addEventListener('mousemove', handlers.mousemove, true);
+  window.addEventListener('mouseup', handlers.mouseup, true);
+  window.addEventListener('mouseout', handlers.mouseout, true);
+}
+
+function unbindWindowTouchEvents(handlers) {
+  window.removeEventListener('touchmove', handlers.touchmove, true);
+  window.removeEventListener('touchend', handlers.touchend, true);
+  window.removeEventListener('touchcancel', handlers.touchcancel, true);
+}
+
+function unbindWindowMouseEvents(handlers) {
+  window.removeEventListener('mousemove', handlers.mousemove, true);
+  window.removeEventListener('mouseup', handlers.mouseup, true);
+  window.removeEventListener('mouseout', handlers.mouseout, true);
 }
 
 export default Ember.Component.extend({
@@ -119,10 +124,14 @@ export default Ember.Component.extend({
     this._isTouching = false;
     this.scroller = undefined;
     this.scrollerEventHandlers = {
-      start: handleStart.bind(this),
-      move: handleMove.bind(this),
-      end: handleEnd.bind(this),
-      cancel: handleCancel.bind(this),
+      touchstart: handleTouchStart.bind(this),
+      touchmove: handleTouchMove.bind(this),
+      touchend: handleTouchEnd.bind(this),
+      touchcancel: handleTouchCancel.bind(this),
+      mousedown: handleMouseDown.bind(this),
+      mousemove: handleMouseMove.bind(this),
+      mouseup: handleMouseUp.bind(this),
+      mouseout: handleMouseOut.bind(this),
       wheel: handleWheel.bind(this)
     };
     this._super();
@@ -279,7 +288,8 @@ export default Ember.Component.extend({
   },
   unbindScrollerEvents: function() {
     unbindElement(this.element, this.scrollerEventHandlers);
-    unbindWindow(this.scrollerEventHandlers);
+    unbindWindowTouchEvents(this.scrollerEventHandlers);
+    unbindWindowMouseEvents(this.scrollerEventHandlers);
   },
 
   doTouchStart: function(touches, timeStamp) {
@@ -297,15 +307,20 @@ export default Ember.Component.extend({
   },
 
   mouseWheel: function(e){
-    let inverted = e.webkitDirectionInvertedFromDevice;
-    let delta = e.wheelDeltaY * (inverted ? 0.8 : -0.8);
-    let candidatePosition = this.scroller.__scrollTop + delta;
+    let eventInfo = normalizeWheel(e);
+    let delta = eventInfo.pixelY;
+    let scroller = this.scroller;
+    let scrollTop = scroller.__scrollTop;
+    let maxScrollTop = scroller.__maxScrollTop;
+    let candidatePosition = scrollTop + delta;
 
-    if ((candidatePosition >= 0) && (candidatePosition <= this.scroller.__maxScrollTop)) {
-      this.scroller.scrollBy(0, delta, true);
-      e.stopPropagation();
+    if ( (scrollTop === 0 && candidatePosition < 0) ||
+         (scrollTop === maxScrollTop && candidatePosition > maxScrollTop)) {
+      return false;
     }
 
+    scroller.scrollBy(0, delta, true);
+    e.stopPropagation();
     return false;
   }
 });
