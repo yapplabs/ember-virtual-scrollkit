@@ -11,7 +11,7 @@ let handleTouchStart = function (e) {
   if (target && fieldRegex.test(target.tagName)) {
     return;
   }
-  bindWindowTouchEvents(this.scrollerEventHandlers);
+  bindDocumentTouchEvents(this.scrollerEventHandlers);
   this.doTouchStart(e.touches, e.timeStamp);
 };
 let handleTouchMove = function (e) {
@@ -19,11 +19,11 @@ let handleTouchMove = function (e) {
   this.doTouchMove(e.touches, e.timeStamp);
 };
 let handleTouchEnd = function (e) {
-  unbindWindowTouchEvents(this.scrollerEventHandlers);
+  unbindDocumentTouchEvents(this.scrollerEventHandlers);
   this.doTouchEnd(e.timeStamp);
 };
 let handleTouchCancel = function (e) {
-  unbindWindowTouchEvents(this.scrollerEventHandlers);
+  unbindDocumentTouchEvents(this.scrollerEventHandlers);
   this.doTouchEnd(e.timeStamp);
 };
 
@@ -36,7 +36,7 @@ let handleMouseDown = function (e) {
   if (target && fieldRegex.test(target.tagName)) {
     return;
   }
-  bindWindowMouseEvents(this.scrollerEventHandlers);
+  bindDocumentMouseEvents(this.scrollerEventHandlers);
   this.doTouchStart([e], e.timeStamp);
   e.preventDefault();
   };
@@ -46,7 +46,7 @@ let handleMouseMove = function (e) {
 };
 
 let handleMouseUp = function (e) {
-  unbindWindowMouseEvents(this.scrollerEventHandlers);
+  unbindDocumentMouseEvents(this.scrollerEventHandlers);
   this.doTouchEnd(e.timeStamp);
 };
 
@@ -54,7 +54,7 @@ let handleMouseOut = function (e) {
   if (e.relatedTarget) {
     return;
   }
-  unbindWindowMouseEvents(this.scrollerEventHandlers);
+  unbindDocumentMouseEvents(this.scrollerEventHandlers);
   this.doTouchEnd(e.timeStamp);
 };
 
@@ -75,28 +75,28 @@ function unbindElement(el, handlers) {
   el.removeEventListener(normalizeWheel.getEventType(), handlers.wheel, false);
 }
 
-function bindWindowTouchEvents(handlers) {
-  window.addEventListener('touchmove', handlers.touchmove, true);
-  window.addEventListener('touchend', handlers.touchend, true);
-  window.addEventListener('cancelEvent', handlers.touchcancel, true);
+function bindDocumentTouchEvents(handlers) {
+  document.addEventListener('touchmove', handlers.touchmove, { capture: true, passive: false });
+  document.addEventListener('touchend', handlers.touchend, { capture: true, passive: false });
+  document.addEventListener('cancelEvent', handlers.touchcancel, { capture: true, passive: false });
 }
 
-function bindWindowMouseEvents(handlers) {
-  window.addEventListener('mousemove', handlers.mousemove, true);
-  window.addEventListener('mouseup', handlers.mouseup, true);
-  window.addEventListener('mouseout', handlers.mouseout, true);
+function bindDocumentMouseEvents(handlers) {
+  document.addEventListener('mousemove', handlers.mousemove, { capture: true, passive: false });
+  document.addEventListener('mouseup', handlers.mouseup, { capture: true, passive: false });
+  document.addEventListener('mouseout', handlers.mouseout, { capture: true, passive: false });
 }
 
-function unbindWindowTouchEvents(handlers) {
-  window.removeEventListener('touchmove', handlers.touchmove, true);
-  window.removeEventListener('touchend', handlers.touchend, true);
-  window.removeEventListener('touchcancel', handlers.touchcancel, true);
+function unbindDocumentTouchEvents(handlers) {
+  document.removeEventListener('touchmove', handlers.touchmove, { capture: true, passive: false });
+  document.removeEventListener('touchend', handlers.touchend, { capture: true, passive: false });
+  document.removeEventListener('touchcancel', handlers.touchcancel, { capture: true, passive: false });
 }
 
-function unbindWindowMouseEvents(handlers) {
-  window.removeEventListener('mousemove', handlers.mousemove, true);
-  window.removeEventListener('mouseup', handlers.mouseup, true);
-  window.removeEventListener('mouseout', handlers.mouseout, true);
+function unbindDocumentMouseEvents(handlers) {
+  document.removeEventListener('mousemove', handlers.mousemove, { capture: true, passive: false });
+  document.removeEventListener('mouseup', handlers.mouseup, { capture: true, passive: false });
+  document.removeEventListener('mouseout', handlers.mouseout, { capture: true, passive: false });
 }
 
 export default Ember.Component.extend({
@@ -278,8 +278,8 @@ export default Ember.Component.extend({
   },
   unbindScrollerEvents: function() {
     unbindElement(this.element, this.scrollerEventHandlers);
-    unbindWindowTouchEvents(this.scrollerEventHandlers);
-    unbindWindowMouseEvents(this.scrollerEventHandlers);
+    unbindDocumentTouchEvents(this.scrollerEventHandlers);
+    unbindDocumentMouseEvents(this.scrollerEventHandlers);
   },
 
   doTouchStart: function(touches, timeStamp) {
