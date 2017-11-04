@@ -10,9 +10,11 @@ export default EmberCollection.extend({
   classNames: ['ember-virtual-collection'],
   isTouching: false,
   captureClicksWhenScrolling: true,
-  didInitAttrs(){
+  init() {
     this._super(...arguments);
     this._clientSizeChange = this.getAttr('client-size-change');
+    this._initialScrollTop = this.getAttr('initial-scroll-top');
+    this._scrollControlApiRegistrar = this.getAttr('scroll-control-api-registrar');
   },
   didInsertElement(){
     this._super(...arguments);
