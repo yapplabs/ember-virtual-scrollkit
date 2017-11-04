@@ -100,6 +100,7 @@ function unbindDocumentMouseEvents(handlers) {
 }
 
 export default Ember.Component.extend({
+  classNames: ['ember-virtual-scrollable'],
   init() {
     this._clientWidth = undefined;
     this._clientHeight = undefined;
@@ -108,6 +109,7 @@ export default Ember.Component.extend({
     this._needsContentSizeUpdate = false;
     this._scrollLeft = 0;
     this._scrollTop = 0;
+    this._initialScrollTop = this.get('initial-scroll-top') || 0;
     this._appliedScrollLeft = undefined;
     this._appliedScrollTop = undefined;
     this._animationFrame = undefined;
@@ -125,6 +127,7 @@ export default Ember.Component.extend({
       wheel: handleWheel.bind(this)
     };
     this._super();
+    this.scrollControlApiRegistrar = this.get('scroll-control-api-registrar');
   },
   didReceiveAttrs() {
     this._contentSize = this.getAttr('content-size');
@@ -132,6 +135,7 @@ export default Ember.Component.extend({
     this._scrollTop = this.getAttr('scroll-top');
   },
   didInsertElement() {
+    this._super(...arguments);
     this.contentElement = this.element.firstElementChild;
     this.setupScroller();
     this.applyStyle();
@@ -189,10 +193,25 @@ export default Ember.Component.extend({
     this.syncScrollFromAttr();
   },
   willDestroyElement() {
+    this._super(...arguments);
     this.contentElement = undefined;
     this.unbindScrollerEvents();
     this.cancelSizeCheck();
   },
+  scrollTo(yPos, animated=false) {
+    if (this.element) {
+      return this.scroller.scrollTo(0, yPos, animated);
+    }
+  },
+
+  scrollToTop() {
+    return this.scrollTo(0, true);
+  },
+
+  resetScrollPosition() {
+    return this.scrollTo(this._initialScrollTop, false);
+  },
+
   applyStyle() {
     // hack to force render buffer so outside doesn't repaint on scroll
     let element = this.element;
@@ -243,7 +262,7 @@ export default Ember.Component.extend({
     // is that attempting to apply the scroll position before the scroller has size results
     // in a scroll position of [0,0].
     let initialScrollLeft = this._scrollLeft;
-    let initialScrollTop = this._scrollTop;
+    let initialScrollTop = this._initialScrollTop;
     component.sizeCheck();
     this._initialSizeCheckCompleted = true;
     if (initialScrollLeft || initialScrollTop) {
