@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
 import makeModel from '../utils/make-model';
 
 function shuffle(array) {
@@ -20,7 +20,7 @@ function shuffle(array) {
   return array;
 }
 
-export default Ember.Controller.extend({
+export default Controller.extend({
   itemWidth: 100,
   itemHeight: 100,
   containerWidth: 300,
@@ -36,7 +36,7 @@ export default Ember.Controller.extend({
     },
 
     shuffle: function() {
-        this.set('model', shuffle(this.get('model').slice(0)));
+        this.set('model', shuffle(this.model.slice(0)));
     },
 
     makeSquare: function() {
@@ -69,7 +69,7 @@ export default Ember.Controller.extend({
     _isFullLengthCollection: true,
     swapCollection: function() {
       this.toggleProperty('_isFullLengthCollection');
-      const numItems = this.get('_isFullLengthCollection') ? 1000 : 500;
+      const numItems = this._isFullLengthCollection ? 1000 : 500;
       this.set('model', makeModel(numItems)());
     }
   }

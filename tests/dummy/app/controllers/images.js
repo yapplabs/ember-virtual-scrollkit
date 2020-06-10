@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex ;
@@ -19,7 +19,7 @@ function shuffle(array) {
   return array;
 }
 
-export default Ember.Controller.extend({
+export default Controller.extend({
   itemWidth: 200,
   itemHeight: 100,
   containerWidth: 300,
@@ -35,7 +35,7 @@ export default Ember.Controller.extend({
     },
 
     shuffle: function() {
-        this.set('model', shuffle(this.get('model').slice(0)));
+        this.set('model', shuffle(this.model.slice(0)));
     }
   }
 });

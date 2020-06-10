@@ -1,4 +1,4 @@
+import { helper as buildHelper } from '@ember/component/helper';
 import dynamicImage from 'ember-virtual-scrollkit/helpers/dynamic-image';
-import Ember from 'ember';
 
-export default Ember.Helper.helper(dynamicImage);
+export default buildHelper(dynamicImage);

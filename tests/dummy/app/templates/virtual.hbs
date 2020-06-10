@@ -16,9 +16,9 @@ Item Width: {{itemWidth}}
 <hr />
 
 <div class="simple-list" style={{{concat 'position:relative;width:' containerWidth 'px;height:' containerHeight 'px;'}}}>
-  {{#ember-virtual-collection items=model estimated-height=containerHeight estimated-width=containerWidth buffer=1 cell-layout=(fixed-grid-layout itemWidth itemHeight) as |item index|}}
+  <EmberVirtualCollection @items={{model}} @estimated-height={{containerHeight}} @estimated-width={{containerWidth}} @buffer={{1}} @cell-layout={{fixed-grid-layout itemWidth itemHeight}} as |item index|>
     <div class="list-item">
       {{item.name}}
     </div>
-  {{/ember-virtual-collection}}
+  </EmberVirtualCollection>
 </div>

@@ -1,10 +1,12 @@
-import Ember from 'ember';
+import { cancel, later } from '@ember/runloop';
+import { assert } from '@ember/debug';
+import Component from '@ember/component';
 import layout from './ember-scrollbar/template';
 import { translate } from 'ember-collection/utils/translate';
 const { min, max, round } = Math;
 const MIN_SCROLLBAR_LENGTH = 15;
 
-export default Ember.Component.extend({
+export default Component.extend({
   layout: layout,
   classNames: ['ember-scrollbar'],
   classNameBindings: ['direction'],
@@ -25,7 +27,7 @@ export default Ember.Component.extend({
       this._contentLength = this.getAttr('content-height');
       this._viewportLength = this.getAttr('viewport-height');
     } else {
-      Ember.assert('direction is either vertical or horizontal', this.direction);
+      assert('direction is either vertical or horizontal', this.direction);
       this._scrollOffset = this.getAttr('scroll-left');
       this._contentLength = this.getAttr('content-width');
       this._viewportLength = this.getAttr('viewport-width');
@@ -48,15 +50,15 @@ export default Ember.Component.extend({
     const track = this.$('.track')[0];
     track.style.position = 'absolute';
     if (this.direction === 'vertical') {
-      track.style.width = `${this.get('width')}px`;
-      track.style.top = `${this.get('endInset')}px`;
-      track.style.bottom = `${this.get('endInset')}px`;
-      track.style.right = `${this.get('sideInset')}px`;
+      track.style.width = `${this.width}px`;
+      track.style.top = `${this.endInset}px`;
+      track.style.bottom = `${this.endInset}px`;
+      track.style.right = `${this.sideInset}px`;
     } else {
-      track.style.height = `${this.get('width')}px`;
-      track.style.left = `${this.get('endInset')}px`;
-      track.style.right = `${this.get('endInset')}px`;
-      track.style.bottom = `${this.get('sideInset')}px`;
+      track.style.height = `${this.width}px`;
+      track.style.left = `${this.endInset}px`;
+      track.style.right = `${this.endInset}px`;
+      track.style.bottom = `${this.sideInset}px`;
     }
   },
   applyStyles(scrollbarPosition, scrollbarLength) {
@@ -81,7 +83,7 @@ export default Ember.Component.extend({
   },
   checkIsMoving(){
     if (this._checkIsMovingTimer) {
-      Ember.run.cancel(this._checkIsMovingTimer);
+      cancel(this._checkIsMovingTimer);
       this._checkIsMovingTimer = null;
     }
     var timeDelta = new Date() - this._previousScrollOffsetTimestamp;
@@ -101,7 +103,7 @@ export default Ember.Component.extend({
   },
   scheduleCheckIsMoving(){
     if (!this._checkIsMovingTimer) {
-      this._checkIsMovingTimer = Ember.run.later(this, this.checkIsMoving, 250);
+      this._checkIsMovingTimer = later(this, this.checkIsMoving, 250);
     }
   },
   computeVisibility(){
@@ -131,7 +133,7 @@ export default Ember.Component.extend({
 
     const viewportLength = this._viewportLength;
     const contentLength = this._contentLength;
-    const trackLength = viewportLength - (this.get('endInset') * 2);
+    const trackLength = viewportLength - (this.endInset * 2);
     const contentRatio = min(1, viewportLength / contentLength);
     let scrollbarLength = max(round(contentRatio * trackLength), MIN_SCROLLBAR_LENGTH);
     const uncompressedMaxScrollbarPosition = trackLength - scrollbarLength;

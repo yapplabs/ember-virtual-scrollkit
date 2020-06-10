@@ -1,9 +1,7 @@
+import { set } from '@ember/object';
 import EmberCollection from 'ember-collection/components/ember-collection';
 import layout from './ember-virtual-collection/template';
-import Ember from 'ember';
 const hasTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch;
-
-const { set } = Ember;
 
 export default EmberCollection.extend({
   layout: layout,
@@ -18,19 +16,19 @@ export default EmberCollection.extend({
   },
   didInsertElement(){
     this._super(...arguments);
-    if (this.get('captureClicksWhenScrolling')) {
+    if (this.captureClicksWhenScrolling) {
       this.setupClickCapture();
     }
   },
   willDestroyElement(){
     this._super(...arguments);
-    if (this.get('captureClicksWhenScrolling')) {
+    if (this.captureClicksWhenScrolling) {
       this.teardownClickCapture();
     }
   },
   setupClickCapture(){
     let component = this;
-    let element = this.get('element');
+    let element = this.element;
     component.captureClick = function(e){
       e.stopPropagation(); // Stop the click from being propagated.
       this.removeEventListener('click', component.captureClick, true); // cleanup
@@ -62,7 +60,7 @@ export default EmberCollection.extend({
     }
   },
   teardownClickCapture(){
-    let element = this.get('element');
+    let element = this.element;
     element.removeEventListener('click', this.captureClick, true);
     if (hasTouch) {
       element.removeEventListener('touchend', this.ccTouchend, false);
