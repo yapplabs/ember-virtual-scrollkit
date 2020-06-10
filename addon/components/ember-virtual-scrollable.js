@@ -1,5 +1,7 @@
 /* global Scroller */
-import Ember from 'ember';
+import { join } from '@ember/runloop';
+
+import Component from '@ember/component';
 import { translate } from 'ember-collection/utils/translate';
 import normalizeWheel from 'ember-virtual-scrollkit/utils/normalize-wheel';
 
@@ -99,7 +101,7 @@ function unbindDocumentMouseEvents(handlers) {
   document.removeEventListener('mouseout', handlers.mouseout, { capture: true, passive: false });
 }
 
-export default Ember.Component.extend({
+export default Component.extend({
   classNames: ['ember-virtual-scrollable'],
   init() {
     this._clientWidth = undefined;
@@ -109,7 +111,7 @@ export default Ember.Component.extend({
     this._needsContentSizeUpdate = false;
     this._scrollLeft = 0;
     this._scrollTop = 0;
-    this._initialScrollTop = this.get('initial-scroll-top') || 0;
+    this._initialScrollTop = this['initial-scroll-top'] || 0;
     this._appliedScrollLeft = undefined;
     this._appliedScrollTop = undefined;
     this._animationFrame = undefined;
@@ -127,7 +129,7 @@ export default Ember.Component.extend({
       wheel: handleWheel.bind(this)
     };
     this._super();
-    this.scrollControlApiRegistrar = this.get('scroll-control-api-registrar');
+    this.scrollControlApiRegistrar = this['scroll-control-api-registrar'];
   },
   didReceiveAttrs() {
     this._contentSize = this.getAttr('content-size');
@@ -153,7 +155,7 @@ export default Ember.Component.extend({
   setupScroller: function(){
     this.scroller = new Scroller((left, top/*, zoom*/) => {
       let scroller = this.scroller;
-      Ember.run.join(this, this.onScrollChange, left|0, top|0, {
+      join(this, this.onScrollChange, left|0, top|0, {
         decelerationVelocityX: scroller.__decelerationVelocityX,
         decelerationVelocityY: scroller.__decelerationVelocityY
       });
@@ -283,7 +285,7 @@ export default Ember.Component.extend({
     if (clientWidth !== this._clientWidth || clientHeight !== this._clientHeight) {
       this._clientWidth = clientWidth;
       this._clientHeight = clientHeight;
-      Ember.run.join(() => {
+      join(() => {
         this.updateScrollerDimensions();
         this.sendClientSizeChange(clientWidth, clientHeight);
       });

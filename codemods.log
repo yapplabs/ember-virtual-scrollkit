@@ -1,0 +1,1 @@
+2020-06-10T06:51:44.821Z [warn] WARNING: {{dynamic-image}} was not converted as it has positional parameters which can't be automatically converted. Source: tests/dummy/app/templates/images.hbs

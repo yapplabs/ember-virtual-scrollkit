@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { htmlSafe } from '@ember/template';
 export default function dynamicImage([imageSrc], hash) {
   const { width, height } = hash;
   const className = hash.class;
@@ -14,7 +14,7 @@ export default function dynamicImage([imageSrc], hash) {
       html += ` class=${className}`;
     }
     html += '>';
-    return Ember.String.htmlSafe(html);
+    return htmlSafe(html);
   } else {
     var img = new Image();
     if (width) {
